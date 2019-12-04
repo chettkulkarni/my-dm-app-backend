@@ -25,6 +25,7 @@ cors = CORS(app)
 
 
 #water api to pull in impeached data and agrregate values hourly in pandas and then sending it to front end
+#this api helps front end to create a awater type graph
 @app.route('/water/', methods=['Post'])
 def water():
 	df=pd.read_csv('final.csv')
@@ -36,14 +37,20 @@ def water():
 	date=date.sort_values('Date',ascending=False).head(20)
 	return date.drop_duplicates(subset ="Date").to_json(orient='records')
 
+
+
 #pred api to get imeached data and return aggregated data to front end 
+#this gives front end positive negative tweets distribution
 @app.route('/pred', methods=['Post'])
 def predict():
 	df = pd.read_csv('final.csv', encoding='latin')
 	predicted_class_counts = df.Predicted_Class.value_counts()
 	return (predicted_class_counts.to_json(orient='records'))
 
+
+
 #pos api to get imeached data and return aggregated data to front end 
+#gives front end the words in the positively classified tweets
 @app.route('/pos', methods=['Post'])
 def pos():
     print('pos called')
@@ -72,6 +79,7 @@ def pos():
 
 
 #pred api to get imeached data and return aggregated data to front end 
+#gives front end the words in the negatively classified tweets
 @app.route('/neg', methods=['Post'])
 def neg():
     df = pd.read_csv('final.csv', encoding='latin')
@@ -116,16 +124,17 @@ def neg():
 # 	customneg=customneg.drop('Unnamed: 0',axis=1)
 # 	return customneg.to_json(orient='records')
 
-#Get Data from front end,process tweets and lean dataset and run the pickled model on it,and send it to front end
 
+#Get Data from front end,process tweets and lean dataset and run the pickled model on it,and send it to front end
+#get all the data for custom keyword search and show positive and negative tweets analytics
 @app.route('/tweets/<string>', methods=['POST'])
 def TweetPred(string):
 	loaded_model = joblib.load('lr_Down.pkl')
 	vector=joblib.load('abc.pkl')
-	consumer_key = "veNJxpsprtmX4qvysWCw3DHNG"
-	consumer_secret = "rnbojQvAPe0guXUg15XMNb4TW7P9xeu9Yp2JvLEwQ452TUpx8q"
-	access_key = "2422714549-zxSwCa4KHEM3n0Elve7fmkYyFDd5hMexMPRirud"
-	access_secret = "W4RCAftVTF9kDLknXfC0Tsvh5M44mBrMrlWC1fLznHY5f"
+	consumer_key = "veNJxdsvsfpsprtmX4qvysWCw3DHNG"
+	consumer_secret = "rnbojQsgsfshjhlovAPe0guXUg15XMNb4TW7P9xeu9Yp2JvLEwQ452TUpx8q"
+	access_key = "2422714549-zxSwCkmasrgpijpo'ja4KHEM3n0Elve7fmkYyFDd5hMexMPRirud"
+	access_secret = "W4RCAftVTF9kDLknXfC0Tshjkl;vh5M44mBrMrlWC1fLznHY5f"
 	def authorize_twitter_api():
 	    auth = OAuthHandler(consumer_key, consumer_secret)
 	    auth.set_access_token(access_key, access_secret)
@@ -222,7 +231,6 @@ def TweetPred(string):
 	df = df.sort_values(by=['value'],ascending=False)
 	# df.to_csv('custompos.csv')
 	custompos=df.to_json(orient='records')
-
 	df=data
 	tweets_df=df
 	tweets_df['Predicted_Class']=df['Predicted_Class']
@@ -247,16 +255,13 @@ def TweetPred(string):
 	item.append(custompos)
 	item.append(customneg)
 	item2=pd.DataFrame(item)
-
 	# item=df.Predicted_Class.value_counts().to_json(orient='records')+','+customwater+','+custompos+','+customneg
-
-
 	return item2.to_json(orient='index')
 
 
 
 
-
+#auth api for tweeeter
 def createOAuth1Object(conf):
     return OAuth1(conf['consumerKey'],
                   client_secret=conf['consumerSecret'],
