@@ -24,6 +24,7 @@ app = Flask(__name__)
 cors = CORS(app)
 
 
+#water api to pull in impeached data and agrregate values hourly in pandas and then sending it to front end
 @app.route('/water/', methods=['Post'])
 def water():
 	df=pd.read_csv('final.csv')
@@ -35,12 +36,14 @@ def water():
 	date=date.sort_values('Date',ascending=False).head(20)
 	return date.drop_duplicates(subset ="Date").to_json(orient='records')
 
+#pred api to get imeached data and return aggregated data to front end 
 @app.route('/pred', methods=['Post'])
 def predict():
 	df = pd.read_csv('final.csv', encoding='latin')
 	predicted_class_counts = df.Predicted_Class.value_counts()
 	return (predicted_class_counts.to_json(orient='records'))
 
+#pos api to get imeached data and return aggregated data to front end 
 @app.route('/pos', methods=['Post'])
 def pos():
     print('pos called')
@@ -67,6 +70,8 @@ def pos():
     df = df.sort_values(by=['value'],ascending=False)
     return (df.to_json(orient='records'))
 
+
+#pred api to get imeached data and return aggregated data to front end 
 @app.route('/neg', methods=['Post'])
 def neg():
     df = pd.read_csv('final.csv', encoding='latin')
@@ -91,23 +96,27 @@ def neg():
     return (df.to_json(orient='records'))
 
 
-@app.route('/customwater', methods=['Post'])
-def customwater():
-	customwater=pd.read_csv('customwater.csv')
-	customwater=customwater.drop('Unnamed: 0',axis=1)
-	return customwater.to_json(orient='records')
 
-@app.route('/custompos', methods=['Post'])
-def custompos():
-	custompos=pd.read_csv('custompos.csv')
-	custompos=custompos.drop('Unnamed: 0',axis=1)
-	return custompos.to_json(orient='records')
+# #Custom API's to get data from from front end,process the request 
+# @app.route('/customwater', methods=['Post'])
+# def customwater():
+# 	customwater=pd.read_csv('customwater.csv')
+# 	customwater=customwater.drop('Unnamed: 0',axis=1)
+# 	return customwater.to_json(orient='records')
 
-@app.route('/customneg', methods=['Post'])
-def customneg():
-	customneg=pd.read_csv('customneg.csv')
-	customneg=customneg.drop('Unnamed: 0',axis=1)
-	return customneg.to_json(orient='records')
+# @app.route('/custompos', methods=['Post'])
+# def custompos():
+# 	custompos=pd.read_csv('custompos.csv')
+# 	custompos=custompos.drop('Unnamed: 0',axis=1)
+# 	return custompos.to_json(orient='records')
+
+# @app.route('/customneg', methods=['Post'])
+# def customneg():
+# 	customneg=pd.read_csv('customneg.csv')
+# 	customneg=customneg.drop('Unnamed: 0',axis=1)
+# 	return customneg.to_json(orient='records')
+
+#Get Data from front end,process tweets and lean dataset and run the pickled model on it,and send it to front end
 
 @app.route('/tweets/<string>', methods=['POST'])
 def TweetPred(string):
